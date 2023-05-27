@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Draw a point (1)</title>
+  </head>
+
+  <body onload="main()">
+    <div>    
+      <canvas id="webgl" width="400" height="400">
+      Please use a browser that supports "canvas"
+      </canvas>
+    </div>
+    <div>
+      <button id="clearButton" name="clearButton" onclick="ClearCanvas()">Clear Canvas</button>
+    </div>
+    <div>
+      <div><label>Drawing Mode:</label></div>
+      <button id="setSquareButton" name="setSquareButton" onclick="setMode(0)">Squares</button>
+      <button id="setTriangleButton" name="setTriangleButton" onclick="setMode(1)">Triangles</button>
+      <button id="setCircleButton" name="setCircleButton" onclick="setMode(2)">Circles</button>
+    </div>
+    <div>
+      <div><label>Shape Color:</label></div>
+      <label>Red:</label><input type="range" min="0" max="255" value="0" class="slider" id="redSlider">
+      <label>Green:</label><input type="range" min="0" max="255" value="0" class="slider" id="greenSlider">
+      <label>Blue:</label><input type="range" min="0" max="255" value="0" class="slider" id="blueSlider">
+    </div>
+    <div id = "shapeSizeDiv" style = "display:block">
+      <label>Shape Size (Note, if using manual triangle side length this slider will be overriden!):</label><input type="range" min="5" max="50" value="1" class="slider" id="shapeSizeSlider">
+      <div id="circleDiv" style="display:none;">
+        <label>(Circle only) Segments:</label><input type="range" min="3" max="10" value="3" class="slider" id="circleSegmentSlider">
+      </div>	
+	</div>
+	<div id = "triInfo", style = "display:none">
+		<div>
+		  <label>Triangle Oppisite side length:</label><input type="text" id="triOppBox" onchange="updateTriBoxes()">
+		</div>
+		<div>
+		  <label>Triangle Adjacent side length:</label><input type="text" id="triAdjBox" onchange="updateTriBoxes()">
+		</div>
+		<div>
+		  <label>Triangle Hypotenuse length:</label><input type="text" id="triHypoBox" disabled>
+		</div>
+	</div>
+    </div>
+	<div>
+		<button id ="drawPictureButton" onclick="drawPicture()">Draw Picture!</button>
+	</div>
+	<div>
+		<img src=rocket.png>
+	</div>
+
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="Draw.js"></script>
+    <script src="Point.js"></script>
+	<script src="Triangle.js"></script>
+	<script src ="Circle.js"></script>
+  </body>
+</html>
