@@ -12,9 +12,12 @@ class Cube {
     this.vertexBuffer = null;
     this.float32ArrayV = null
     this.vertices = null;
+    this.float32ArrayN = null;
+    this.normals = null;
+    this.normalBuffer = null;
+    this.uvs = null;
     this.uvBuffer = null;
     this.float32ArrayU = null;
-    this.uvs = null;
   }
 
   render(coordSystem) { //take in our parent coordinate system (0,0 if no parent)
@@ -46,19 +49,24 @@ class Cube {
     }
 
     if (this.vertices == null) {
-      this.vertices = mergeArrays([vertexBufferCube[0].elements, vertexBufferCube[1].elements, vertexBufferCube[2].elements,
-                                   vertexBufferCube[2].elements, vertexBufferCube[1].elements, vertexBufferCube[3].elements,
-                                   vertexBufferCube[4].elements, vertexBufferCube[0].elements, vertexBufferCube[6].elements,
-                                   vertexBufferCube[6].elements, vertexBufferCube[0].elements, vertexBufferCube[2].elements,
-                                   vertexBufferCube[7].elements, vertexBufferCube[5].elements, vertexBufferCube[6].elements,
-                                   vertexBufferCube[6].elements, vertexBufferCube[5].elements, vertexBufferCube[4].elements,
-                                   vertexBufferCube[3].elements, vertexBufferCube[1].elements, vertexBufferCube[7].elements,
-                                   vertexBufferCube[7].elements, vertexBufferCube[1].elements, vertexBufferCube[5].elements,
-                                   vertexBufferCube[4].elements, vertexBufferCube[5].elements, vertexBufferCube[0].elements,
-                                   vertexBufferCube[0].elements, vertexBufferCube[5].elements, vertexBufferCube[1].elements,
-                                   vertexBufferCube[3].elements, vertexBufferCube[7].elements, vertexBufferCube[2].elements,
-                                   vertexBufferCube[2].elements, vertexBufferCube[7].elements, vertexBufferCube[6].elements]);
+      this.vertices = mergeArrays([vertexBufferCube[0].elements, vertexBufferCube[1].elements, vertexBufferCube[2].elements, //front
+                                   vertexBufferCube[2].elements, vertexBufferCube[1].elements, vertexBufferCube[3].elements, //front
+                                   vertexBufferCube[4].elements, vertexBufferCube[0].elements, vertexBufferCube[6].elements, //left
+                                   vertexBufferCube[6].elements, vertexBufferCube[0].elements, vertexBufferCube[2].elements, //left
+                                   vertexBufferCube[7].elements, vertexBufferCube[5].elements, vertexBufferCube[6].elements, //back
+                                   vertexBufferCube[6].elements, vertexBufferCube[5].elements, vertexBufferCube[4].elements, //back
+                                   vertexBufferCube[3].elements, vertexBufferCube[1].elements, vertexBufferCube[7].elements, //right
+                                   vertexBufferCube[7].elements, vertexBufferCube[1].elements, vertexBufferCube[5].elements, //right 
+                                   vertexBufferCube[4].elements, vertexBufferCube[5].elements, vertexBufferCube[0].elements, //bottom
+                                   vertexBufferCube[0].elements, vertexBufferCube[5].elements, vertexBufferCube[1].elements, //bottom
+                                   vertexBufferCube[3].elements, vertexBufferCube[7].elements, vertexBufferCube[2].elements, //top
+                                   vertexBufferCube[2].elements, vertexBufferCube[7].elements, vertexBufferCube[6].elements  //top
+                                  ]); 
       this.float32ArrayV = new Float32Array(this.vertices);
+    }
+
+    if (this.normals == null) {
+      this.normals = mergeArrays([normalBufferCube[0].elements, normalBufferCube[2].elements, normalBufferCube[1].elements, normalBufferCube[3].elements, normalBufferCube[4].elements, normalBufferCube[5].elements]);
     }
     
 
@@ -85,6 +93,10 @@ class Cube {
     if (this.uvBuffer == null) {
       this.uvBuffer = gl.createBuffer();
     }
+
+    if (this.normalBuffer == null) {
+      this.normals = gl.createBuffer();
+    }
     //console.log(this.matrix); 
 
     var rgba = this.color;
@@ -99,44 +111,16 @@ class Cube {
     gl.vertexAttribPointer(a_UV, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(a_UV);
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.float32ArrayN, gl.DYNAMIC_DRAW);
+    gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Normal);
+
+    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
     gl.uniform1i(u_whichTexture, this.textureIndex);
     gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3);
-    //front broke this lol
-    /*drawTriangle3DUV(mergeArrays([vertexBufferCube[0].elements, vertexBufferCube[1].elements, vertexBufferCube[2].elements]), [UV_X_S,UV_Y_S, UV_X_E,UV_Y_S, UV_X_S,UV_Y_E]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[2].elements, vertexBufferCube[1].elements, vertexBufferCube[3].elements]), [UV_X_S,UV_Y_E, UV_X_E,UV_Y_S, UV_X_E, UV_Y_E]);
-    //right
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[4].elements, vertexBufferCube[0].elements, vertexBufferCube[6].elements]), [UV_X_S,UV_Y_S, UV_X_E,UV_Y_S, UV_X_S,UV_Y_E]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[6].elements, vertexBufferCube[0].elements, vertexBufferCube[2].elements]), [UV_X_S,UV_Y_E, UV_X_E,UV_Y_S, UV_X_E,UV_Y_E]);
-    //back
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[7].elements, vertexBufferCube[5].elements, vertexBufferCube[6].elements]), [UV_X_S,UV_Y_E, UV_X_S,UV_Y_S, UV_X_E,UV_Y_E]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[6].elements, vertexBufferCube[5].elements, vertexBufferCube[4].elements]), [UV_X_E,UV_Y_E, UV_X_S,UV_Y_S, UV_X_E,UV_Y_S]);
-    //left
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[3].elements, vertexBufferCube[1].elements, vertexBufferCube[7].elements]), [UV_X_S,UV_Y_E, UV_X_S,UV_Y_S, UV_X_E,UV_Y_E]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[7].elements, vertexBufferCube[1].elements, vertexBufferCube[5].elements]), [UV_X_E,UV_Y_E, UV_X_S,UV_Y_S, UV_X_E,UV_Y_S]);
-    //bottom
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[4].elements, vertexBufferCube[5].elements, vertexBufferCube[0].elements]),  [UV_X_S,UV_Y_S, UV_X_E,UV_Y_S, UV_X_S,UV_Y_E]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[0].elements, vertexBufferCube[5].elements, vertexBufferCube[1].elements]), [UV_X_S,UV_Y_E, UV_X_E,UV_Y_S, UV_X_E,UV_Y_E]);
-    //top
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[3].elements, vertexBufferCube[7].elements, vertexBufferCube[2].elements]), [UV_X_E,UV_Y_S, UV_X_E,UV_Y_E, UV_X_S,UV_Y_S]);
-    drawTriangle3DUV(mergeArrays([vertexBufferCube[2].elements, vertexBufferCube[7].elements, vertexBufferCube[6].elements]), [UV_X_S,UV_Y_S, UV_X_E,UV_Y_E, UV_X_S,UV_Y_E]);*/
-   
-    //drawTriangle3D([0.0, 1.0, 0.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0]);
-    //drawTriangle3D([0.0, 0.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 1.0]);
-
-    /*
-    gl.uniform4f(u_FragColor, rgba[0]*0.6, rgba[1]*0.6, rgba[2]*0.6, rgba[3]);
-    drawTriangle3D([0.0, 1.0, 1.0,  0.0, 1.0, 1.0,  0.0, 0.0, 1.0]);
-    drawTriangle3D([0.0, 1.0, 0.0,  1.0, 1.0, 0.0,  0.0, 1.0, 1.0]);
-
-    drawTriangle3D([1.0, 1.0, 0.0,  1.0, 0.0, 1.0,  1.0, 0.0, 0.0]);
-    drawTriangle3D([1.0, 1.0, 0.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0]);
-    
-    drawTriangle3D([0.0, 1.0, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, 0.0]);
-    drawTriangle3D([0.0, 1.0, 0.0,  0.0, 1.0, 1.0,  0.0, 0.0, 1.0]);
-    
-    drawTriangle3D([0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0, 1.0, 1.0]);
-    drawTriangle3D([0.0, 0.0, 1.0,  1.0, 1.0, 0.0,  1.0, 1.0, 1.0]);*/
 
     for (let i = 0; i < this.children.length; i++) { //tell all our children to render, giving them our coordinate system
       var child = this.children[i];

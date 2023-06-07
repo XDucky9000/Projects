@@ -30,16 +30,28 @@ var vertexBufferCube = [ //preloaded
   new Vector3([1.0,1.0,1.0]) //7
 ];
 
+var normalBufferCube = [
+  new Vector3([0.0, 0.0, -1.0]), // Face 0: (0, 1, 3, 2) - Front
+  new Vector3([0.0, 0.0, 1.0]),  // Face 1: (5, 4, 6, 7) - Back
+  new Vector3([-1.0, 0.0, 0.0]), // Face 2: (4, 0, 2, 6) - Left
+  new Vector3([1.0, 0.0, 0.0]),  // Face 3: (1, 5, 7, 3) - Right
+  new Vector3([0.0, -1.0, 0.0]), // Face 4: (4, 5, 1, 0) - Bottom
+  new Vector3([0.0, 1.0, 0.0])   // Face 5: (2, 3, 7, 6) - Top
+];
+
 var VSHADER_SOURCE = 
   `attribute vec4 a_Position; 
   attribute vec2 a_UV;
+  attribute vec3 a_Normal;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_ViewMatrix;
   uniform mat4 u_ProjectionMatrix;
   void main() { 
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * a_Position; // Set the vertex coordinates of the point
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`
   // Fragment shader program
 var FSHADER_SOURCE =
@@ -47,8 +59,12 @@ var FSHADER_SOURCE =
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform int u_whichTexture;
   void main() {
+    if (u_whichTexture == -3) {
+      gl_FragColor = vec4((v_Normal + 1.0) / 2.0, 1.0);
+    }
 
     if (u_whichTexture == -1) {
       gl_FragColor = vec4(v_UV, 1.0, 1.0);
@@ -73,6 +89,7 @@ let camera;
 let gl;
 let a_Position;
 let a_UV;
+let a_Normal;
 let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
@@ -272,6 +289,13 @@ function connectVariablesToGLSL() {
   a_UV = gl.getAttribLocation(gl.program, 'a_UV');
   if (a_UV < 0) {
     console.log("Failed to get position for a_UV");
+    return;
+  }
+
+  
+  a_UV = gl.getAttribLocation(gl.program, 'a_Normal');
+  if (a_UV < 0) {
+    console.log("Failed to get position for a_Normal");
     return;
   }
 

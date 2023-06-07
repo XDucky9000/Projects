@@ -104,7 +104,7 @@ class Cube {
     gl.enableVertexAttribArray(a_UV);
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
-    gl.uniform1i(u_whichTexture, this.textureIndex);
+    gl.uniform1i(u_whichTexture, -3);
     gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3);
     //front broke this lol
     /*drawTriangle3DUV(mergeArrays([vertexBufferCube[0].elements, vertexBufferCube[1].elements, vertexBufferCube[2].elements]), [UV_X_S,UV_Y_S, UV_X_E,UV_Y_S, UV_X_S,UV_Y_E]);
